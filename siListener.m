@@ -14,8 +14,15 @@ netObj = UDPWithEvents.UDPWithEvents(listenerStatus.listenport);
 % function is called
 addlistener(netObj,'OnReceive',@UDP_handler);
 
+% delete all existing udp objects
+all_udp = instrfindall('Type','udp');
+if ~isempty(all_udp)
+    fclose(all_udp);
+    delete(all_udp);
+end
 % make the udp to send
 listenerStatus.udpObject = udp('158.109.215.50',listenerStatus.sendport);
+fopen(listenerStatus.udpObject);
 
 % Setup default status of listener
 listenerStatus.expID = '2014-01-01_01_TEST';
@@ -40,7 +47,7 @@ debugOn = false;
 
 UDP_Received = char(int32(datain));
 %disp(UDP_Received);
-udpData = hlp_deserialize(UDP_Received)
+udpData = hlp_deserialize(UDP_Received);
 
     if strcmp(udpData.messageType,'COM')
         % if it's a command
@@ -49,7 +56,7 @@ udpData = hlp_deserialize(UDP_Received)
                 % check space on disk is > 50GB
                 FileObj      = java.io.File('v:\');
                 free_gb   = FileObj.getFreeSpace*1e-9;
-                if free_gb < 100
+                if free_gb < 200
                     switch questdlg(['Space free = ',num2str(round(free_gb)),'GB - suggest delete data before continuing. Would you like to do this?'])
                         case 'Yes'
                             return
@@ -121,9 +128,10 @@ udpData = hlp_deserialize(UDP_Received)
                 messageStruct.confirmID = round(rand*10^6);
                 messageStruct.confirm = 0;
                 messageStructSerial = hlp_serialize(messageStruct);
-                fopen(listenerStatus.udpObject);
+%                 fclose(listenerStatus.udpObject);
+%                 fopen(listenerStatus.udpObject);
                 fwrite(listenerStatus.udpObject,messageStructSerial);
-                fclose(listenerStatus.udpObject);
+%                 fclose(listenerStatus.udpObject);
                 src.BeginReceive;
                 disp('Grabbing confirmed');
     
@@ -139,16 +147,37 @@ udpData = hlp_deserialize(UDP_Received)
                     return;
                 end
                 disp('Stopped');
-                                % send ready command
+                % send ready command
                 messageStruct.messageData = 'READY';
                 messageStruct.messageType = 'COM';
                 messageStruct.confirmID = round(rand*10^6);
                 messageStruct.confirm = 0;
                 messageStructSerial = hlp_serialize(messageStruct);
-                fopen(listenerStatus.udpObject);
+                disp(' messageStructSerial = hlp_serialize(messageStruct); OK');
+%                 fclose(listenerStatus.udpObject);
+                %listenerStatus.udpObject = udp('158.109.215.50',listenerStatus.sendport);
+%                 close_attempts = 0;
+%                 close_timeout = tic;
+%                 fopen(listenerStatus.udpObject);
+%                 while strcmp(listenerStatus.udpObject.Status,'open')
+%                      fclose(listenerStatus.udpObject);
+%                     close_attempts = close_attempts + 1;
+%                     if toc(close_timeout)>10
+%                         disp('Timed out trying to close UDP connection');
+%                         break;
+%                     end
+%                 end
+%                 disp(['Time to close connection = ',num2str(toc(close_timeout)),' secs']);
+%                 disp(['Close attempts           = ',num2str(close_attempts),' secs']);
+%                 disp('fclose(listenerStatus.udpObject); OK');
+%                 fopen(listenerStatus.udpObject);
+                disp('fopen(listenerStatus.udpObject); OK');
                 fwrite(listenerStatus.udpObject,messageStructSerial);
-                fclose(listenerStatus.udpObject);
+                disp('fwrite(listenerStatus.udpObject,messageStructSerial); OK');
+%                 fclose(listenerStatus.udpObject);
+                disp('fclose(listenerStatus.udpObject); OK');
                 src.BeginReceive;
+                disp('src.BeginReceive; OK');
         end
     end
     
