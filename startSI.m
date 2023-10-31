@@ -8,3 +8,4 @@ global hSICtl
     drawnow
     end
 siListener
+zfocus

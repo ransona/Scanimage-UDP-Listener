@@ -113,6 +113,7 @@ udpData = hlp_deserialize(UDP_Received);
                 %evalin('base','hSI.startGrab');
                 %T = timer('StartDelay',1,'TimerFcn',@(src,evt)evalin('base','hSI.startGrab'));
                 % start(T)
+                hSI.hChannels.loggingEnable=true;
                 hSI.startGrab;
                 % drawnow;
                 disp('Requested start grabbing');
